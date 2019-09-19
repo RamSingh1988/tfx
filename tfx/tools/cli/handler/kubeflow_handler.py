@@ -27,8 +27,9 @@ import kfp_server_api
 from tabulate import tabulate
 import tensorflow as tf
 
-from typing import Text, Dict, Any
+from typing import Text, Dict, Any, Optional
 from tfx.tools.cli import labels
+from tfx.tools.cli.container_builder import builder
 from tfx.tools.cli.handler import base_handler
 from tfx.utils import io_utils
 
@@ -62,6 +63,20 @@ class KubeflowHandler(base_handler.BaseHandler):
     Args:
       overwrite: set as true to update pipeline.
     """
+    # Build pipeline conatiner image.
+    try:
+      target_image = None
+      if labels.TARGET_IMAGE in self.flags_dict:
+        target_image = self.flags_dict[labels.TARGET_IMAGE]
+      self._build_pipeline_image(target_image)
+      from tfx.orchestration.kubeflow import kubeflow_dag_runner  # pylint: disable=g-import-not-at-top
+      os.environ[kubeflow_dag_runner.KUBEFLOW_TFX_IMAGE_ENV] = target_image
+    except ValueError:
+      click.echo('No container image are built.')
+    else:
+      click.echo('New container image is built. Target image is available in '
+                 'the build spec file.')
+
     # Compile pipeline to check if pipeline_args are extracted successfully.
     pipeline_args = self.compile_pipeline()
 
@@ -283,6 +298,9 @@ class KubeflowHandler(base_handler.BaseHandler):
       sys.exit(
           'Pipeline package not found at {}. When --package_path is unset, it will try to find the workflow file, "<pipeline_name>.tar.gz" in the current directory.'
           .format(pipeline_package_path))
+
+  def _build_pipeline_image(self, target_image: Optional[Text] = None) -> None:
+    builder.ContainerBuilder(target_image=target_image).build()
 
   def _get_pipeline_id(self, pipeline_name: Text) -> Text:
     # Path to pipeline folder.

@@ -45,6 +45,21 @@ def pipeline_group() -> None:
     help='Path to the pipeline output workflow file. When unset, it will try to find the workflow file, "<pipeline_name>.tar.gz" in the current directory.'
 )
 @click.option(
+    '--build_target_image',
+    default=None,
+    type=str,
+    help='Target container image path. It is only required for the kubeflow'
+    'engine and the target image will be built by this command to include'
+    'local python code to the TFX default image. After setting this option,'
+    'the command will install Skaffold if it\'s not installed and by default'
+    'use docker daemon to build an image which will install the local setup.py'
+    'onto TFX default image. You can place a setup.py file to control the'
+    'python code to install and dependent package. You can also customize'
+    'the Skaffold building options by placing a build.yaml in the local'
+    'directory. In addition, you can place a Dockerfile file to customize'
+    'the docker building script.'
+)
+@click.option(
     '--endpoint',
     default=None,
     type=str,
@@ -61,13 +76,15 @@ def pipeline_group() -> None:
     type=str,
     help='Kubernetes namespace to connect to the KFP API.')
 def create_pipeline(ctx: Context, engine: Text, pipeline_path: Text,
-                    package_path: Text, endpoint: Text, iap_client_id: Text,
+                    package_path: Text, build_target_image: Text,
+                    endpoint: Text, iap_client_id: Text,
                     namespace: Text) -> None:
   """Command definition to create a pipeline."""
   click.echo('Creating pipeline')
   ctx.flags_dict[labels.ENGINE_FLAG] = engine
   ctx.flags_dict[labels.PIPELINE_DSL_PATH] = pipeline_path
   ctx.flags_dict[labels.PIPELINE_PACKAGE_PATH] = package_path
+  ctx.flags_dict[labels.TARGET_IMAGE] = build_target_image
   ctx.flags_dict[labels.ENDPOINT] = endpoint
   ctx.flags_dict[labels.IAP_CLIENT_ID] = iap_client_id
   ctx.flags_dict[labels.NAMESPACE] = namespace

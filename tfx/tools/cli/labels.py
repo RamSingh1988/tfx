@@ -31,6 +31,8 @@ PIPELINE_COMPONENTS = 'pipeline_components'
 # Kubeflow specific labels.
 # Path to the output workflow file for Kubeflow pipelines.
 PIPELINE_PACKAGE_PATH = 'pipeline_package_path'
+# Target container image path.
+TARGET_IMAGE = 'build_target_image'
 # Client ID for IAP protected endpoint.
 IAP_CLIENT_ID = 'iap_client_id'
 # Endpoint of the KFP API service to connect.
