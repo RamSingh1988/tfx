@@ -87,6 +87,12 @@ class ComponentSpec(with_metaclass(abc.ABCMeta, json_utils.Jsonable)):
     self._verify_parameter_types()
     self._parse_parameters()
 
+  def __eq__(self, other):
+    return isinstance(other, self.__class__) \
+      and self.PARAMETERS == other.PARAMETERS \
+      and self.INPUTS == other.INPUTS \
+      and self.OUTPUTS == other.OUTPUTS
+
   def _validate_spec(self):
     """Check the parameters and types passed to this ComponentSpec."""
     for param_name, param in [('PARAMETERS', self.PARAMETERS),
@@ -231,6 +237,11 @@ class ExecutionParameter(_ComponentParameter):
     return 'ExecutionParameter(type: %s, optional: %s)' % (self.type,
                                                            self.optional)
 
+  def __eq__(self, other):
+    return isinstance(other, self.__class__) \
+      and other.type == self.type \
+      and other.optional == self.optional
+
   def type_check(self, arg_name: Text, value: Any):
     # Can't type check generics. Note that we need to do this strange check form
     # since typing.GenericMeta is not exposed.
@@ -280,6 +291,11 @@ class ChannelParameter(_ComponentParameter):
 
   def __repr__(self):
     return 'ChannelParameter(type_name: %s)' % (self.type_name,)
+
+  def __eq__(self, other):
+    return isinstance(other, self.__class__) \
+      and other.type_name == self.type_name \
+      and other.optional == self.optional
 
   def type_check(self, arg_name: Text, value: Channel):
     if not isinstance(value, Channel) or value.type_name != self.type_name:

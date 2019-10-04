@@ -56,8 +56,6 @@ class InteractiveContextTest(tf.test.TestCase):
             nbformat.v4.new_markdown_cell(source='Another markdown cell.'),
             nbformat.v4.new_code_cell(source=textwrap.dedent('''\
                 %%skip_for_export
-                !pip install something
-                !ls
                 x = 1
                 y = 2
                 print('this cell should not be exported')''')),
