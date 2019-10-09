@@ -40,6 +40,7 @@
     `component.outputs['output_name']` (previously, the syntax was
     `component.outputs.output_name`).
 *   Updated Iris example to skip transform and use Keras model.
+*   Fixed bug in AI Platform Pusher that prevents pushes after first push.
 
 ### Deprecations
 
