@@ -1,0 +1,39 @@
+#Calculate new column based on certain condition with pandas
+# with Pandas 
+def label_race (row):
+   if row['eri_hispanic'] == 1 :
+      return 'Hispanic'
+   if row['eri_afr_amer'] + row['eri_asian'] + row['eri_hawaiian'] + row['eri_nat_amer'] + row['eri_white'] > 1 :
+      return 'Two Or More'
+   if row['eri_nat_amer'] == 1 :
+      return 'A/I AK Native'
+   if row['eri_asian'] == 1:
+      return 'Asian'
+   if row['eri_afr_amer']  == 1:
+      return 'Black/AA'
+   if row['eri_hawaiian'] == 1:
+      return 'Haw/Pac Isl.'
+   if row['eri_white'] == 1:
+      return 'White'
+   return 'Other'
+
+df['race_label'] = df.apply (lambda row: label_race(row), axis=1)
+#ORa
+df['race_label'] = df.apply (label_race, axis=1)
+
+%timeit df.apply(lambda row: label_race(row), axis=1)
+
+#with numpy
+%%timeit
+conditions = [
+    df['eri_hispanic'] == 1,
+    df[['eri_afr_amer', 'eri_asian', 'eri_hawaiian', 'eri_nat_amer', 'eri_white']].sum(1).gt(1),
+    df['eri_nat_amer'] == 1,
+    df['eri_asian'] == 1,
+    df['eri_afr_amer'] == 1,
+    df['eri_hawaiian'] == 1,
+    df['eri_white'] == 1,
+]
+outputs = ['Hispanic', 'Two Or More', 'A/I AK Native', 'Asian', 'Black/AA', 'Haw/Pac Isl.', 'White']
+res = np.select(conditions, outputs, 'Other')
+df['race_label'] = pd.Series(res)
